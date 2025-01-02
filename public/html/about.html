@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Us - Digital Media Department</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Animation Keyframes */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideDown {
+        from {
+          transform: translateY(-50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideLeft {
+        from {
+          transform: translateX(-50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      /* Base Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        background-color: #000000;
+        color: #ffffff;
+        line-height: 1.6;
+        overflow-x: hidden;
+        animation: fadeIn 1.5s ease-in-out;
+      }
+
+      /* Header Styles */
+      header {
+        padding: 80px 20px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        animation: slideDown 1.5s ease-in-out;
+      }
+
+      header h1 {
+        font-size: 3.5rem;
+        font-weight: 300;
+        margin-bottom: 15px;
+        letter-spacing: 2px;
+      }
+
+      header h2 {
+        font-size: 1.2rem;
+        font-weight: 300;
+        color: #999;
+        letter-spacing: 1px;
+      }
+
+      /* Container Styles */
+      .container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+        animation: fadeIn 2s ease-in-out;
+      }
+
+      .section {
+        margin-bottom: 40px;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        animation: slideUp 1.5s ease-in-out;
+      }
+
+      h3 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        font-weight: 300;
+        letter-spacing: 1px;
+        color: #ffffff;
+        animation: slideLeft 1.5s ease-in-out;
+      }
+
+      p {
+        color: #cccccc;
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        animation: fadeIn 2s ease-in-out;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      ul li {
+        color: #cccccc;
+        margin-bottom: 15px;
+        padding-left: 25px;
+        position: relative;
+        animation: slideUp 1.5s ease-in-out;
+      }
+
+      ul li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #ffffff;
+      }
+
+      /* Back Button */
+      .back-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: none;
+        border: 2px solid #ffffff33;
+        color: #ffffff;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.8s ease-out;
+      }
+
+      .back-button:hover {
+        background: #ffffff;
+        color: #000000;
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        padding: 30px 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: #999;
+        font-size: 0.9rem;
+        animation: slideUp 1.5s ease-in-out;
+      }
+
+      /* Developer Credits */
+      .developer-credits {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        color: #999;
+        font-size: 0.9rem;
+        animation: fadeIn 1.2s ease-out 0.8s backwards;
+      }
+
+      /* Loading Screen */
+      .loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
+      }
+
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid #333;
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Mobile Responsive */
+      @media (max-width: 768px) {
+        header {
+          padding: 60px 20px;
+        }
+
+        header h1 {
+          font-size: 2.5rem;
+        }
+
+        header h2 {
+          font-size: 1rem;
+        }
+
+        .container {
+          padding: 20px;
+          margin: 20px auto;
+        }
+
+        .section {
+          padding: 20px;
+        }
+
+        h3 {
+          font-size: 1.8rem;
+        }
+
+        .back-button {
+          top: 10px;
+          left: 10px;
+          width: 35px;
+          height: 35px;
+          font-size: 16px;
+        }
+
+        .developer-credits {
+          bottom: 10px;
+          right: 10px;
+          font-size: 0.8rem;
+          z-index: 1000;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div class="loading">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <button class="back-button" onclick="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <header>
+      <h1>About Us</h1>
+      <h2>Digital Media Department - Cairo University</h2>
+    </header>
+
+    <div class="container">
+      <div class="section">
+        <h3>Welcome to Digital Media</h3>
+        <p>
+          At the Digital Media Department, Faculty of Mass Communication, Cairo
+          University, we strive to provide the latest resources and knowledge to
+          equip our students with the skills needed to excel in the
+          ever-evolving field of digital media.
+        </p>
+      </div>
+
+      <div class="section">
+        <h3>Our Mission</h3>
+        <ul>
+          <li>
+            Preparing graduates to tackle the challenges of the digital job
+            market.
+          </li>
+          <li>
+            Empowering students with the latest technical and academic tools in
+            media and communication.
+          </li>
+          <li>Fostering a creative and innovative educational environment.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>About the Developer</h3>
+        <p>
+          This website was developed by <strong>Youssef Fouad</strong>, a
+          third-year student at the Faculty of Mass Communication, Digital Media
+          Department, Cairo University. I aim to provide an exceptional digital
+          experience for students and visitors alike.
+        </p>
+      </div>
+    </div>
+
+    <div class="developer-credits">Developed by: Youssef Fouad</div>
+
+    <footer>
+      &copy; 2024 Digital Media Department - Faculty of Mass Communication -
+      Cairo University. All Rights Reserved.
+    </footer>
+
+    <script>
+      // Loading Screen
+      window.addEventListener("load", () => {
+        const loading = document.querySelector(".loading");
+        loading.classList.add("hidden");
+        setTimeout(() => (loading.style.display = "none"), 500);
+      });
+
+      function goBack() {
+        window.history.back();
+      }
+
+      // Reveal animations on scroll
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px",
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = "1";
+            entry.target.style.transform = "translateY(0)";
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll(".section").forEach((section) => {
+        observer.observe(section);
+      });
+    </script>
+  </body>
+</html>

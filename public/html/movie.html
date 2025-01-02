@@ -1,0 +1,2322 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Details</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        background: #141414;
+        color: #fff;
+      }
+
+      .movie-hero {
+        position: relative;
+        height: 85vh;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+
+      .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          rgba(0, 0, 0, 0.9) 0%,
+          rgba(0, 0, 0, 0.7) 50%,
+          rgba(0, 0, 0, 0.4) 100%
+        );
+        padding: 5%;
+        display: flex;
+        align-items: center;
+      }
+
+      .movie-content {
+        display: flex;
+        gap: 3rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .movie-poster {
+        width: 300px;
+        height: 450px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      }
+
+      .movie-poster img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .movie-info {
+        max-width: 600px;
+      }
+
+      .movie-title {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .movie-metadata {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        color: #ccc;
+      }
+
+      .metadata-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .movie-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        color: #ddd;
+        max-width: 700px;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .watch-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .watch-trailer {
+        background: #5f04084e;
+        color: white;
+      }
+
+      .watch-movie {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      .watch-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      /* Video Section */
+      .video-section {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+
+      .video-container {
+        width: 100%;
+        max-width: 1200px;
+        position: relative;
+        background: #000;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .video-wrapper {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+      }
+
+      .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+
+      .close-video {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+      }
+
+      .close-video:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
+      }
+
+      /* Team Section */
+      .team-section {
+        padding: 4rem 5%;
+        background: #000;
+        overflow: hidden;
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s forwards;
+      }
+
+      .team-container {
+        position: relative;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 50px;
+      }
+
+      .team-grid {
+        display: flex;
+        gap: 2rem;
+        transition: transform 0.5s ease;
+      }
+
+      .team-card {
+        min-width: 280px;
+        border: solid 1px rgba(246, 241, 241, 0.368);
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s forwards;
+        animation-delay: calc(var(--delay) * 0.1s);
+        flex-shrink: 0;
+      }
+
+      .team-card:hover {
+        transform: translateY(-10px);
+        transition: transform 0.3s ease;
+      }
+
+      .member-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        overflow: hidden;
+        border: 1px solid white;
+      }
+
+      .member-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .member-name {
+        font-size: 1.4rem;
+        color: #fffafa;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      .member-role {
+        color: #e3e2e294;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+      }
+
+      .social-links {
+        margin-top: 40px;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .social-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid rgba(231, 226, 226, 0.507);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .social-link:hover {
+        transform: scale(1.1);
+        background: #ff0000;
+        color: white;
+      }
+
+      .nav-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 2;
+        transition: all 0.3s ease;
+      }
+
+      .prev-button {
+        left: 0;
+      }
+      .next-button {
+        right: 0;
+      }
+
+      .nav-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .movie-content {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .movie-poster {
+          width: 250px;
+          height: 375px;
+        }
+
+        .movie-title {
+          font-size: 2.5rem;
+        }
+
+        .movie-metadata,
+        .action-buttons {
+          justify-content: center;
+        }
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        background: #141414;
+        color: #fff;
+      }
+
+      .movie-hero {
+        position: relative;
+        height: 85vh;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+
+      .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          rgba(0, 0, 0, 0.9) 0%,
+          rgba(0, 0, 0, 0.7) 50%,
+          rgba(0, 0, 0, 0.4) 100%
+        );
+        padding: 5%;
+        display: flex;
+        align-items: center;
+      }
+
+      .movie-content {
+        display: flex;
+        gap: 3rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .movie-poster {
+        width: 300px;
+        height: 450px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      }
+
+      .movie-poster img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .movie-info {
+        max-width: 600px;
+      }
+
+      .movie-title {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .movie-metadata {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        color: #ccc;
+      }
+
+      .metadata-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .movie-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        color: #ddd;
+        max-width: 700px;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .watch-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        opacity: 1;
+      }
+
+      .watch-trailer {
+        background: #5f04084e;
+        color: white;
+      }
+
+      .watch-movie {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      .watch-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      /* Video Section */
+      .video-section {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+
+      .video-container {
+        width: 100%;
+        max-width: 1200px;
+        position: relative;
+        background: #000;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .video-wrapper {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+      }
+
+      .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+
+      .close-video {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+      }
+
+      .close-video:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
+      }
+
+      /* Team Section */
+      .team-section {
+        padding: 4rem 5%;
+        background: #000;
+        overflow: hidden;
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s forwards;
+      }
+
+      .team-container {
+        position: relative;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 50px;
+      }
+
+      .team-grid {
+        display: flex;
+        gap: 2rem;
+        transition: transform 0.5s ease;
+      }
+
+      .team-card {
+        min-width: 280px;
+        border: solid 1px rgba(246, 241, 241, 0.368);
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s forwards;
+        animation-delay: calc(var(--delay) * 0.1s);
+        flex-shrink: 0;
+      }
+
+      .team-card:hover {
+        transform: translateY(-10px);
+        transition: transform 0.3s ease;
+      }
+
+      .member-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        overflow: hidden;
+        border: 1px solid white;
+      }
+
+      .member-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .member-name {
+        font-size: 1.4rem;
+        color: #fffafa;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      .member-role {
+        color: #e3e2e294;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+      }
+
+      .social-links {
+        margin-top: 40px;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .social-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid rgba(231, 226, 226, 0.507);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .social-link:hover {
+        transform: scale(1.1);
+        background: #ff0000;
+        color: white;
+      }
+
+      .nav-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 2;
+        transition: all 0.3s ease;
+      }
+
+      .prev-button {
+        left: 0;
+      }
+      .next-button {
+        right: 0;
+      }
+
+      .nav-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .movie-content {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .movie-poster {
+          width: 250px;
+          height: 375px;
+        }
+
+        .movie-title {
+          font-size: 2.5rem;
+        }
+
+        .movie-metadata,
+        .action-buttons {
+          justify-content: center;
+        }
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        background: #141414;
+        color: #fff;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, #000, #1a1a1a);
+        z-index: -1;
+        animation: gradientBG 15s ease infinite;
+        background-size: 400% 400%;
+      }
+
+      .movie-hero {
+        position: relative;
+        height: 85vh;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        animation: fadeInBlur 1.5s ease-out;
+      }
+
+      .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          rgba(0, 0, 0, 0.9) 0%,
+          rgba(0, 0, 0, 0.7) 50%,
+          rgba(0, 0, 0, 0.4) 100%
+        );
+        padding: 5%;
+        display: flex;
+        align-items: center;
+      }
+
+      .movie-content {
+        display: flex;
+        gap: 3rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        opacity: 0;
+        animation: slideUp 1s ease forwards 0.5s;
+      }
+
+      .movie-poster {
+        width: 300px;
+        height: 450px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        perspective: 1000px;
+        transform-style: preserve-3d;
+      }
+
+      .movie-poster img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+      }
+
+      .movie-poster:hover img {
+        transform: rotateY(-15deg) rotateX(5deg);
+        box-shadow: 30px 30px 30px rgba(0, 0, 0, 0.6);
+      }
+
+      .movie-info {
+        max-width: 600px;
+        transform: translateX(50px);
+        opacity: 0;
+        animation: slideIn 1s ease forwards 1s;
+      }
+
+      .movie-title {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        position: relative;
+        animation: glitch 5s infinite;
+      }
+
+      .movie-metadata {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        color: #ccc;
+      }
+
+      .metadata-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: fadeIn 0.5s ease forwards;
+        opacity: 0;
+      }
+
+      .metadata-item:nth-child(1) {
+        animation-delay: 1.2s;
+      }
+      .metadata-item:nth-child(2) {
+        animation-delay: 1.4s;
+      }
+      .metadata-item:nth-child(3) {
+        animation-delay: 1.6s;
+      }
+
+      .movie-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        color: #ddd;
+        max-width: 700px;
+        opacity: 0;
+        animation: fadeIn 1s ease forwards 1.8s;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .watch-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        animation: pulse 2s infinite;
+        opacity: 2;
+      }
+
+      .watch-trailer {
+        background: #5f04084e;
+        color: white;
+        animation-delay: 2s;
+      }
+
+      .watch-movie {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        animation-delay: 2.2s;
+      }
+
+      .watch-btn:hover {
+        transform: translateY(-2px) scale(1.05);
+      }
+
+      /* Video Section */
+      .video-section {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .video-container {
+        width: 100%;
+        max-width: 1200px;
+        position: relative;
+        background: #000;
+        border-radius: 10px;
+        overflow: hidden;
+        transform: scale(0.9);
+        opacity: 0;
+        animation: scaleIn 0.5s ease forwards;
+      }
+
+      .video-wrapper {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+      }
+
+      .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+
+      .close-video {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+      }
+
+      .close-video:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1) rotate(90deg);
+      }
+
+      /* Team Section */
+      .team-section {
+        padding: 4rem 5%;
+        background: #000;
+        overflow: hidden;
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s forwards;
+      }
+
+      .team-container {
+        position: relative;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 50px;
+      }
+
+      .team-grid {
+        display: flex;
+        gap: 2rem;
+        transition: transform 0.5s ease;
+      }
+
+      .team-card {
+        min-width: 280px;
+        max-width: 280px;
+        border: solid 1px rgba(246, 241, 241, 0.368);
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s forwards;
+        animation-delay: calc(var(--delay) * 0.1s);
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .team-card::before {
+        content: "";
+        position: absolute;
+        top: -100%;
+        left: -100%;
+        width: 300%;
+        height: 300%;
+        background: linear-gradient(
+          45deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.1) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        transform: rotate(45deg);
+        transition: 0.5s;
+      }
+
+      .team-card:hover {
+        transform: translateY(-10px);
+        transition: transform 0.3s ease;
+      }
+
+      .team-card:hover::before {
+        left: 100%;
+        top: 100%;
+      }
+
+      .member-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        overflow: hidden;
+        border: 1px solid white;
+        transform: scale(0.8);
+        opacity: 0;
+        animation: scaleIn 0.5s ease forwards 0.3s;
+      }
+
+      .member-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .member-name {
+        font-size: 1.4rem;
+        color: #fffafa;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      .member-role {
+        color: #e3e2e294;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+      }
+
+      .social-links {
+        margin-top: 40px;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .social-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid rgba(231, 226, 226, 0.507);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .social-link i {
+        transition: 0.3s;
+      }
+
+      .social-link:hover {
+        transform: scale(1.1);
+        background: #ff0000;
+        color: white;
+      }
+
+      .social-link:hover i {
+        animation: bounce 0.5s cubic-bezier(0.36, 0, 0.66, -0.56) 3;
+      }
+
+      .nav-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 2;
+        transition: all 0.3s ease;
+      }
+
+      .prev-button {
+        left: 0;
+      }
+      .next-button {
+        right: 0;
+      }
+
+      .nav-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-50%) scale(1.1);
+      }
+
+      /* Animations */
+      @keyframes fadeInBlur {
+        from {
+          opacity: 0;
+          filter: blur(20px);
+        }
+        to {
+          opacity: 1;
+          filter: blur(0);
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+
+      @keyframes gradientBG {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      @keyframes glitch {
+        0% {
+          transform: skew(0deg);
+        }
+        2% {
+          transform: skew(2deg);
+          filter: hue-rotate(0deg);
+        }
+        4% {
+          transform: skew(-2deg);
+          filter: hue-rotate(90deg);
+        }
+        6% {
+          transform: skew(0deg);
+          filter: hue-rotate(0deg);
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .movie-content {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .movie-poster {
+          width: 250px;
+          height: 375px;
+        }
+
+        .movie-title {
+          font-size: 2.5rem;
+        }
+
+        .movie-metadata,
+        .action-buttons {
+          justify-content: center;
+        }
+      }
+      .nav-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 10; /* زيادة z-index */
+        display: flex; /* إضافة */
+        align-items: center; /* إضافة */
+        justify-content: center; /* إضافة */
+      }
+
+      .prev-button {
+        left: 10px;
+      } /* تعديل */
+      .next-button {
+        right: 10px;
+      } /* تعديل */
+      .team-container {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      .nav-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+
+      .prev-button {
+        left: 0;
+      }
+      .next-button {
+        right: 0;
+      }
+      .team-section {
+        padding: 4rem 5%;
+        background: #000;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .navigation-dots {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 100;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .dot.active {
+        background: rgba(255, 255, 255, 0.9);
+        transform: scale(1.2);
+      }
+      navigation-dots {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 100;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .dot.active {
+        background: rgba(255, 255, 255, 0.9);
+        transform: scale(1.2);
+      }
+
+      .team-section {
+        position: relative;
+        padding-bottom: 60px; /* مساحة للنقاط */
+      }
+
+      .nav-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: all 0.3s ease;
+      }
+
+      .prev-button {
+        left: 10px;
+      }
+      .next-button {
+        right: 10px;
+      }
+
+      .nav-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+      /* Suggested Movies Section */
+      .suggested-movies {
+        padding: 4rem 5%;
+        background: #000;
+        position: relative;
+      }
+
+      .films-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+        padding: 20px 0;
+      }
+
+      .film-card {
+        background: #111;
+        overflow: hidden;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        cursor: pointer;
+        height: 450px;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: cardAppear 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      .film-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      .film-thumbnail {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .film-thumbnail img {
+        width: 100%;
+        height: 100%;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        object-fit: cover;
+      }
+
+      .film-card:hover .film-thumbnail img {
+        transform: scale(1.1);
+      }
+
+      .film-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.95) 0%,
+          rgba(0, 0, 0, 0.8) 50%,
+          rgba(0, 0, 0, 0) 100%
+        );
+        padding: 20px;
+        transform: translateY(100%);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        height: 100%;
+        backdrop-filter: blur(3px);
+      }
+
+      .film-card:hover .film-overlay {
+        transform: translateY(0);
+      }
+
+      .film-title {
+        font-size: 1.4em;
+        color: #fff;
+        margin-bottom: 12px;
+        font-weight: 300;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .film-team {
+        color: #888;
+        font-size: 1em;
+        margin-bottom: 8px;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .film-description {
+        color: #666;
+        font-size: 0.95em;
+        line-height: 1.6;
+        margin-top: 12px;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .category-tag {
+        color: #888;
+        font-size: 0.9em;
+        margin-top: 8px;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .watch-film-btn {
+        display: inline-block;
+        padding: 12px 25px;
+        background: #fff;
+        color: #000;
+        text-decoration: none;
+        margin-top: 15px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9em;
+        opacity: 0;
+        transform: translateY(20px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .watch-film-btn::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+
+      .watch-film-btn:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+
+      .film-card:hover .film-title,
+      .film-card:hover .film-team,
+      .film-card:hover .film-description,
+      .film-card:hover .watch-film-btn {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .film-card:hover .film-title {
+        transition-delay: 0.1s;
+      }
+      .film-card:hover .film-team {
+        transition-delay: 0.2s;
+      }
+      .film-card:hover .film-description {
+        transition-delay: 0.3s;
+      }
+      .film-card:hover .watch-film-btn {
+        transition-delay: 0.4s;
+      }
+
+      .watch-film-btn:hover {
+        background: #000;
+        color: #fff;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      @media (max-width: 1024px) {
+        .films-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .films-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      /* Suggested Movies Section */
+      .suggested-movies {
+        padding: 4rem 5%;
+        background: #000;
+        position: relative;
+      }
+
+      .films-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px 0;
+      }
+
+      .film-card {
+        aspect-ratio: 2/3; /* هذا سيجعل نسبة العرض إلى الارتفاع ثابتة مثل البوستر */
+        background: #111;
+        overflow: hidden;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: cardAppear 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      .film-thumbnail {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .film-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @media (max-width: 1200px) {
+        .films-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 992px) {
+        .films-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 576px) {
+        .films-grid {
+          grid-template-columns: repeat(1, 1fr);
+        }
+
+        .film-card {
+          max-width: 300px; /* تحديد الحد الأقصى للعرض على الشاشات الصغيرة */
+          margin: 0 auto;
+        }
+      }
+      .back-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        animation: fadeIn 0.5s ease-out;
+        opacity: 0.8;
+      }
+
+      .back-button:hover {
+        background: rgba(0, 0, 0, 0.8);
+        transform: scale(1.1);
+        opacity: 1;
+      }
+
+      .back-button i {
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+      }
+
+      .back-button:hover i {
+        transform: translateX(-3px);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 0.8;
+          transform: translateY(0);
+        }
+      }
+      @media (max-width: 768px) {
+        /* Hero Section */
+        .movie-hero {
+          height: auto;
+          min-height: 100vh;
+        }
+
+        .hero-overlay {
+          padding: 4rem 1rem;
+        }
+
+        .movie-content {
+          flex-direction: column;
+          gap: 2rem;
+          padding-top: 3rem;
+        }
+
+        .movie-poster {
+          width: 200px;
+          height: 300px;
+          margin: 0 auto;
+        }
+
+        .movie-info {
+          text-align: center;
+          transform: none;
+        }
+
+        .movie-title {
+          font-size: 2rem;
+          margin-bottom: 1rem;
+        }
+
+        .movie-metadata {
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 1rem;
+        }
+
+        .movie-description {
+          font-size: 1rem;
+          line-height: 1.5;
+          margin: 1rem 0;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+          gap: 1rem;
+          width: 100%;
+          max-width: 300px;
+          margin: 0 auto;
+        }
+
+        .watch-btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        /* Team Section */
+        .team-section {
+          padding: 3rem 1rem;
+        }
+
+        .section-title {
+          font-size: 2rem;
+          margin-bottom: 2rem;
+        }
+
+        .team-container {
+          padding: 0 30px;
+        }
+
+        .team-grid {
+          gap: 1rem;
+        }
+
+        .team-card {
+          min-width: 240px;
+          padding: 1.5rem;
+        }
+
+        .member-photo {
+          width: 120px;
+          height: 120px;
+        }
+
+        .member-name {
+          font-size: 1.2rem;
+        }
+
+        .member-role {
+          font-size: 1rem;
+        }
+
+        .nav-button {
+          width: 35px;
+          height: 35px;
+        }
+
+        /* Video Section */
+        .video-section {
+          padding: 1rem;
+        }
+
+        .close-video {
+          top: 10px;
+          right: 10px;
+          width: 35px;
+          height: 35px;
+        }
+
+        /* Suggested Movies */
+        .suggested-movies {
+          padding: 3rem 1rem;
+        }
+
+        .films-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1rem;
+        }
+
+        .film-card {
+          margin: 0;
+          width: 100%;
+        }
+
+        .film-card {
+          margin: 0 auto;
+          width: 100%;
+          max-width: 300px;
+        }
+
+        /* Back Button */
+        .back-button {
+          top: 15px;
+          left: 15px;
+          width: 35px;
+          height: 35px;
+        }
+
+        /* Navigation Dots */
+        .navigation-dots {
+          bottom: 10px;
+        }
+
+        .dot {
+          width: 8px;
+          height: 8px;
+        }
+      }
+
+      /* Small Mobile Devices */
+      @media (max-width: 375px) {
+        .movie-poster {
+          width: 180px;
+          height: 270px;
+        }
+
+        .movie-title {
+          font-size: 1.75rem;
+        }
+
+        .team-card {
+          min-width: 220px;
+        }
+
+        .member-photo {
+          width: 100px;
+          height: 100px;
+        }
+
+        .action-buttons {
+          max-width: 250px;
+        }
+
+        .watch-btn {
+          padding: 10px 20px;
+          font-size: 0.9rem;
+        }
+      }
+
+      /* Landscape Mode */
+      @media (max-height: 600px) and (orientation: landscape) {
+        .movie-hero {
+          min-height: 120vh;
+        }
+
+        .movie-content {
+          padding-top: 5rem;
+        }
+
+        .movie-poster {
+          width: 160px;
+          height: 240px;
+        }
+
+        .movie-metadata {
+          margin-bottom: 1rem;
+        }
+
+        .movie-description {
+          margin: 0.5rem 0;
+        }
+      }
+      .developer-credits {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        color: #999;
+        font-size: 0.9rem;
+        animation: fadeInUp 1.2s ease-out 0.8s backwards;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="movie-hero" id="movieHero">
+      <div class="hero-overlay">
+        <div class="movie-content">
+          <div class="movie-poster">
+            <img id="moviePoster" alt="Movie Poster" />
+          </div>
+          <div class="movie-info">
+            <h1 class="movie-title" id="movieTitle"></h1>
+            <div class="movie-metadata">
+              <div class="metadata-item">
+                <i class="far fa-calendar-alt"></i>
+                <span id="movieYear">2024</span>
+              </div>
+              <div class="metadata-item">
+                <i class="far fa-clock"></i>
+                <span id="movieDuration">164 min</span>
+              </div>
+              <div class="metadata-item">
+                <i class="far fa-star"></i>
+                <span id="movieRating">9.1/10</span>
+              </div>
+            </div>
+            <p class="movie-description" id="movieDescription"></p>
+            <div class="action-buttons">
+              <button class="watch-btn watch-trailer" onclick="playTrailer()">
+                <i class="fas fa-play"></i>
+                Watch Trailer
+              </button>
+              <button class="watch-btn watch-movie" onclick="playMovie()">
+                <i class="fas fa-film"></i>
+                Watch Movie
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="video-section" id="videoSection">
+      <button class="close-video" onclick="closeVideo()">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="video-container">
+        <div class="video-wrapper" id="videoWrapper">
+          <!-- Video will be inserted here dynamically -->
+        </div>
+      </div>
+    </div>
+    <section class="team-section">
+      <h2 class="section-title">Film Crew</h2>
+      <div class="team-container">
+        <button class="nav-button prev-button" onclick="navigate(-1)">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="team-grid" id="teamGrid"></div>
+        <button class="nav-button next-button" onclick="navigate(1)">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+        <!-- <div class="navigation-dots" id="navigationDots"></div> -->
+      </div>
+      <div class="dobs">
+        <div class="navigation-dots" id="navigationDots"></div>
+      </div>
+
+      <div class="navigation-dots" id="navigationDots"></div>
+    </section>
+    <!-- <div class="navigation-dots" id="navigationDots"></div> -->
+    <!-- Suggested Movies Section -->
+    <section class="suggested-movies">
+      <h2 class="section-title">Suggested Movies</h2>
+      <div class="films-grid" id="suggestedMovies"></div>
+      <!-- غير movies-grid إلى films-grid -->
+    </section>
+    <button class="back-button" onclick="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="developer-credits">Developed by: Youssef Fouad</div>
+    <script src="/public/js/data.js"></script>
+    <script>
+      function goBack() {
+        window.history.back();
+      }
+      // Global variables
+      let currentPosition = 0;
+      const cardWidth = 300;
+
+      // Get film data from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const filmId = parseInt(urlParams.get("id")) || 1;
+
+      // Find the current film
+      const film = films.find((f) => f.id === filmId);
+
+      // Initialize page content
+      function initializePageContent() {
+        if (film) {
+          // Update page title and movie information
+          document.title = `${film.title} - Movie Details`;
+          document.getElementById("movieTitle").textContent = film.title;
+          document.getElementById("moviePoster").src = film.thumbnail;
+          document.getElementById(
+            "movieHero"
+          ).style.backgroundImage = `url(${film.thumbnail})`;
+          document.getElementById("movieDescription").textContent =
+            film.description;
+          document.getElementById("movieYear").textContent = film.year;
+          document.getElementById("movieDuration").textContent = film.duration;
+          document.getElementById("movieRating").textContent = film.rating;
+
+          createTeamCards();
+          createNavigationDots();
+          displaySuggestedMovies(); // Display suggested movies when page loads
+        }
+      }
+
+      // Create team member cards
+      function createTeamCards() {
+        const teamGrid = document.getElementById("teamGrid");
+        teamGrid.innerHTML = ""; // Clear existing cards
+
+        film.teamInfo.forEach((member, index) => {
+          const card = document.createElement("div");
+          card.className = "team-card";
+          card.style.setProperty("--delay", index + 1);
+
+          card.innerHTML = `
+      <div class="member-photo">
+        <img src="${member.photo}" alt="${member.name}">
+      </div>
+      <h3 class="member-name">${member.name}</h3>
+      <p class="member-role">${member.role || ""}</p>
+      <div class="social-links">
+        ${
+          member.facebook
+            ? `
+          <a href="${member.facebook}" class="social-link" target="_blank">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+        `
+            : ""
+        }
+        ${
+          member.instagram
+            ? `
+          <a href="${member.instagram}" class="social-link" target="_blank">
+            <i class="fab fa-instagram"></i>
+          </a>
+        `
+            : ""
+        }
+      </div>
+    `;
+
+          teamGrid.appendChild(card);
+        });
+      }
+
+      // Function to get random suggested movies
+      function getSuggestedMovies() {
+        const availableMovies = films.filter((f) => f.id !== filmId);
+        const suggestions = [];
+        const totalMovies = Math.min(4, availableMovies.length);
+
+        const moviesCopy = [...availableMovies];
+
+        for (let i = 0; i < totalMovies; i++) {
+          const randomIndex = Math.floor(Math.random() * moviesCopy.length);
+          suggestions.push(moviesCopy[randomIndex]);
+          moviesCopy.splice(randomIndex, 1);
+        }
+
+        return suggestions;
+      }
+
+      // Function to display suggested movies
+      function displaySuggestedMovies() {
+        const suggestedMoviesContainer =
+          document.getElementById("suggestedMovies");
+        const suggestions = getSuggestedMovies();
+
+        suggestedMoviesContainer.innerHTML = suggestions
+          .map(
+            (movie, index) => `
+    <div class="film-card" style="animation-delay: ${index * 0.1}s">
+      <div class="film-thumbnail">
+        <img src="${movie.thumbnail}" alt="${movie.title}" loading="lazy">
+        <div class="film-overlay">
+          <h3 class="film-title">${movie.title}</h3>
+          <p class="film-team">${movie.team || ""}</p>
+          <p class="film-description">${movie.description || ""}</p>
+          <div class="category-tag">${movie.category || ""}</div>
+          <a href="movie.html?id=${movie.id}" class="watch-film-btn">
+            Watch Film & Credits
+          </a>
+        </div>
+      </div>
+    </div>
+  `
+          )
+          .join("");
+      }
+
+      // Play movie function
+      function playMovie() {
+        if (!film?.videoUrl) return;
+
+        const videoWrapper = document.getElementById("videoWrapper");
+        const videoContainer = document.createElement("div");
+        videoContainer.style.position = "relative";
+        videoContainer.style.paddingBottom = "56.25%";
+        videoContainer.style.height = "0";
+
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://iframe.mediadelivery.net/embed/361718/${film.videoUrl}?autoplay=true`;
+        iframe.style.position = "absolute";
+        iframe.style.top = "0";
+        iframe.style.left = "0";
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.setAttribute("frameborder", "0");
+        iframe.setAttribute("allow", "autoplay; fullscreen");
+        iframe.setAttribute("allowfullscreen", "true");
+
+        videoContainer.appendChild(iframe);
+        videoWrapper.innerHTML = "";
+        videoWrapper.appendChild(videoContainer);
+        document.getElementById("videoSection").style.display = "flex";
+        document.body.style.overflow = "hidden";
+      }
+
+      // Play trailer function
+      function playTrailer() {
+        if (!film?.trailerUrl) return;
+
+        const videoWrapper = document.getElementById("videoWrapper");
+        const videoContainer = document.createElement("div");
+        videoContainer.style.position = "relative";
+        videoContainer.style.paddingBottom = "56.25%";
+        videoContainer.style.height = "0";
+
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://iframe.mediadelivery.net/embed/361718/${film.trailerUrl}?autoplay=true`;
+        iframe.style.position = "absolute";
+        iframe.style.top = "0";
+        iframe.style.left = "0";
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.setAttribute("frameborder", "0");
+        iframe.setAttribute("allow", "autoplay; fullscreen");
+        iframe.setAttribute("allowfullscreen", "true");
+
+        videoContainer.appendChild(iframe);
+        videoWrapper.innerHTML = "";
+        videoWrapper.appendChild(videoContainer);
+        document.getElementById("videoSection").style.display = "flex";
+        document.body.style.overflow = "hidden";
+      }
+
+      // Close video function
+      function closeVideo() {
+        const videoWrapper = document.getElementById("videoWrapper");
+        videoWrapper.innerHTML = "";
+        document.getElementById("videoSection").style.display = "none";
+        document.body.style.overflow = "auto";
+      }
+
+      // Create navigation dots
+      function createNavigationDots() {
+        const dotsContainer = document.getElementById("navigationDots");
+        dotsContainer.innerHTML = ""; // Clear existing dots
+        const numberOfDots = Math.ceil(film.teamInfo.length / 4);
+
+        for (let i = 0; i < numberOfDots; i++) {
+          const dot = document.createElement("div");
+          dot.className = "dot" + (i === 0 ? " active" : "");
+          dot.onclick = () => navigateToSlide(i);
+          dotsContainer.appendChild(dot);
+        }
+      }
+
+      // Update active navigation dot
+      function updateActiveDot() {
+        const dots = document.querySelectorAll(".dot");
+        const activeIndex = Math.floor(currentPosition / (cardWidth * 4));
+
+        dots.forEach((dot, index) => {
+          dot.classList.toggle("active", index === activeIndex);
+        });
+      }
+
+      // Navigate to specific slide
+      function navigateToSlide(index) {
+        const teamGrid = document.getElementById("teamGrid");
+        const maxPosition = (film.teamInfo.length - 4) * cardWidth;
+
+        currentPosition = Math.min(index * cardWidth * 4, maxPosition);
+        teamGrid.style.transform = `translateX(${-currentPosition}px)`;
+        updateActiveDot();
+      }
+
+      // Navigate team cards
+      function navigate(direction) {
+        const teamGrid = document.getElementById("teamGrid");
+        const maxPosition = (film.teamInfo.length - 4) * cardWidth;
+
+        currentPosition = Math.max(
+          Math.min(currentPosition + direction * cardWidth, maxPosition),
+          0
+        );
+        teamGrid.style.transform = `translateX(${-currentPosition}px)`;
+        updateActiveDot();
+      }
+
+      // Scroll animation handler
+      function handleScroll() {
+        const elements = document.querySelectorAll(
+          ".movie-info, .team-card, .film-card"
+        );
+        elements.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight - 100) {
+            el.style.transform = "translateX(0)";
+            el.style.opacity = "1";
+          }
+        });
+      }
+      // Get number of visible cards based on screen width
+      function getVisibleCards() {
+        if (window.innerWidth <= 768) {
+          return 2; // Show 2 cards on mobile
+        }
+        return 4; // Show 4 cards on desktop
+      }
+
+      // Create team member cards
+      function createTeamCards() {
+        const teamGrid = document.getElementById("teamGrid");
+        teamGrid.innerHTML = "";
+
+        film.teamInfo.forEach((member, index) => {
+          const card = document.createElement("div");
+          card.className = "team-card";
+          card.style.setProperty("--delay", index + 1);
+
+          card.innerHTML = `
+      <div class="member-photo">
+        <img src="${member.photo}" alt="${member.name}">
+      </div>
+      <h3 class="member-name">${member.name}</h3>
+      <p class="member-role">${member.role || ""}</p>
+      <div class="social-links">
+        ${
+          member.facebook
+            ? `
+          <a href="${member.facebook}" class="social-link" target="_blank">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+        `
+            : ""
+        }
+        ${
+          member.instagram
+            ? `
+          <a href="${member.instagram}" class="social-link" target="_blank">
+            <i class="fab fa-instagram"></i>
+          </a>
+        `
+            : ""
+        }
+      </div>
+    `;
+
+          teamGrid.appendChild(card);
+        });
+
+        // Reset position and update navigation
+        currentPosition = 0;
+        updateTeamNavigation();
+      }
+
+      // Update team navigation visibility and dots
+      function updateTeamNavigation() {
+        const teamGrid = document.getElementById("teamGrid");
+        const visibleCards = getVisibleCards();
+        const maxPosition = Math.max(
+          0,
+          (film.teamInfo.length - visibleCards) * cardWidth
+        );
+
+        // Update dots
+        const numberOfDots = Math.ceil(film.teamInfo.length / visibleCards);
+        const dotsContainer = document.getElementById("navigationDots");
+        dotsContainer.innerHTML = "";
+
+        for (let i = 0; i < numberOfDots; i++) {
+          const dot = document.createElement("div");
+          dot.className =
+            "dot" +
+            (i === Math.floor(currentPosition / (cardWidth * visibleCards))
+              ? " active"
+              : "");
+          dot.onclick = () => navigateToSlide(i);
+          dotsContainer.appendChild(dot);
+        }
+
+        // Update navigation buttons visibility
+        const prevButton = document.querySelector(".prev-button");
+        const nextButton = document.querySelector(".next-button");
+
+        if (prevButton && nextButton) {
+          prevButton.style.visibility =
+            currentPosition <= 0 ? "hidden" : "visible";
+          nextButton.style.visibility =
+            currentPosition >= maxPosition ? "hidden" : "visible";
+        }
+      }
+
+      // Navigate team cards
+      function navigate(direction) {
+        const teamGrid = document.getElementById("teamGrid");
+        const visibleCards = getVisibleCards();
+        const maxPosition = (film.teamInfo.length - visibleCards) * cardWidth;
+
+        // Calculate new position
+        const newPosition =
+          currentPosition + direction * cardWidth * visibleCards;
+        currentPosition = Math.max(0, Math.min(newPosition, maxPosition));
+
+        // Apply transformation
+        teamGrid.style.transform = `translateX(${-currentPosition}px)`;
+        updateTeamNavigation();
+      }
+
+      // Navigate to specific slide
+      function navigateToSlide(index) {
+        const visibleCards = getVisibleCards();
+        currentPosition = index * cardWidth * visibleCards;
+
+        const teamGrid = document.getElementById("teamGrid");
+        teamGrid.style.transform = `translateX(${-currentPosition}px)`;
+        updateTeamNavigation();
+      }
+
+      // Add resize event listener to handle screen size changes
+      window.addEventListener("resize", () => {
+        currentPosition = 0; // Reset position
+        const teamGrid = document.getElementById("teamGrid");
+        teamGrid.style.transform = `translateX(0)`; // Reset transform
+        updateTeamNavigation();
+      });
+      // Event Listeners
+      window.addEventListener("scroll", handleScroll);
+      window.addEventListener("DOMContentLoaded", initializePageContent);
+
+      // Export functions for use in HTML
+      window.playMovie = playMovie;
+      window.playTrailer = playTrailer;
+      window.closeVideo = closeVideo;
+      window.navigate = navigate;
+      window.navigateToSlide = navigateToSlide;
+    </script>
+  </body>
+</html>

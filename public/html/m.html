@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Image Slider</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Reset & Base Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        min-height: 100vh;
+        color: white;
+        overflow: hidden;
+        transition: background 0.8s ease;
+      }
+
+      /* Container */
+      .container {
+        max-width: 1400px;
+        height: 100vh;
+        margin: 0 auto;
+        padding: 2rem;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Header Styles */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        z-index: 10;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .nav {
+        display: flex;
+        gap: 2rem;
+        font-size: 0.9rem;
+      }
+
+      .nav a {
+        color: white;
+        text-decoration: none;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+        font-size: 0.9rem;
+      }
+
+      .nav a:hover {
+        opacity: 1;
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 4rem;
+        padding-top: 2rem;
+      }
+
+      /* Text Content */
+      .text-content {
+        width: 40%;
+        z-index: 2;
+        position: relative;
+      }
+
+      .title {
+        font-size: 6rem;
+        margin-bottom: 1.5rem;
+        font-weight: normal;
+      }
+
+      .description {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        opacity: 0.8;
+        margin-bottom: 2rem;
+        max-width: 500px;
+      }
+
+      /* Button Styles */
+      .explore-btn {
+        padding: 1rem 2.5rem;
+        font-size: 1.1rem;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .explore-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      /* Slider Section */
+      .slider-section {
+        width: 60%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
+        padding: 2rem;
+      }
+
+      .slider-container {
+        width: 100%;
+        position: relative;
+        overflow: visible;
+        height: 500px;
+      }
+
+      .slider {
+        display: flex;
+        gap: 2rem;
+        position: relative;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: grab;
+        transform-style: preserve-3d;
+        perspective: 1000px;
+      }
+
+      .slider:active {
+        cursor: grabbing;
+      }
+
+      /* Slide Styles */
+      .slide {
+        flex: 0 0 auto;
+        width: 280px;
+        height: 350px;
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: scale(0.85);
+        opacity: 0.6;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transform-origin: center center;
+      }
+
+      .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+        border-radius: 24px;
+      }
+
+      .slide.active {
+        width: 350px;
+        height: 420px;
+        transform: scale(1);
+        opacity: 1;
+        z-index: 2;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Navigation */
+      .navigation-wrapper {
+        position: absolute;
+        bottom: 4rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        z-index: 10;
+      }
+
+      .nav-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+
+      .nav-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .dots {
+        display: flex;
+        gap: 0.8rem;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .dot.active {
+        background: white;
+        transform: scale(1.2);
+      }
+
+      /* Responsive Styles */
+      @media screen and (max-width: 1024px) {
+        .container {
+          padding: 1rem;
+        }
+
+        .main-content {
+          flex-direction: column;
+          gap: 2rem;
+          padding-top: 1rem;
+        }
+
+        .text-content {
+          width: 100%;
+          text-align: center;
+        }
+
+        .slider-section {
+          width: 100%;
+          padding: 1rem;
+        }
+
+        .title {
+          font-size: 4rem;
+        }
+
+        .description {
+          margin: 0 auto 2rem;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .container {
+          padding: 1rem;
+        }
+
+        .header {
+          flex-direction: column;
+          gap: 1.5rem;
+          padding: 1.5rem 0;
+        }
+
+        .logo {
+          font-size: 1.8rem;
+        }
+
+        .nav {
+          width: 100%;
+          justify-content: center;
+          gap: 2rem;
+        }
+
+        .nav a {
+          font-size: 1rem;
+          padding: 0.5rem 1rem;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+        }
+
+        .title {
+          font-size: 3rem;
+        }
+
+        .description {
+          font-size: 1rem;
+        }
+
+        .slider-container {
+          height: 400px;
+        }
+
+        .slide {
+          width: 260px;
+          height: 320px;
+        }
+
+        .slide.active {
+          width: 300px;
+          height: 380px;
+        }
+
+        .navigation-wrapper {
+          bottom: 2rem;
+        }
+
+        .nav-btn {
+          width: 45px;
+          height: 45px;
+          background: rgba(255, 255, 255, 0.15);
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .container {
+          padding: 0.8rem;
+        }
+
+        .header {
+          padding: 1rem 0;
+        }
+
+        .logo {
+          font-size: 1.6rem;
+        }
+
+        .nav {
+          gap: 1rem;
+        }
+
+        .nav a {
+          font-size: 0.9rem;
+          padding: 0.4rem 0.8rem;
+        }
+
+        .title {
+          font-size: 2.8rem;
+        }
+
+        .description {
+          font-size: 1rem;
+          padding: 0;
+        }
+
+        .slider-container {
+          height: 400px;
+        }
+
+        .slide {
+          width: 220px;
+          height: 280px;
+        }
+
+        .slide.active {
+          width: 260px;
+          height: 320px;
+        }
+
+        .explore-btn {
+          padding: 0.9rem 2rem;
+          font-size: 1rem;
+        }
+
+        .navigation-wrapper {
+          gap: 1.2rem;
+        }
+
+        .nav-btn {
+          width: 40px;
+          height: 40px;
+        }
+      }
+
+      /* Touch Device Optimizations */
+      @media (hover: none) and (pointer: coarse) {
+        .nav a,
+        .explore-btn,
+        .nav-btn {
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav a:active,
+        .explore-btn:active,
+        .nav-btn:active {
+          transform: scale(0.95);
+          transition: transform 0.1s;
+        }
+
+        .slider {
+          touch-action: pan-x pinch-zoom;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <div class="logo">Digital Media</div>
+        <nav class="nav">
+          <a href="/gallery.html">films</a>
+          <a href="/about.html">about</a>
+          <a href="/con.html">contact</a>
+        </nav>
+      </header>
+
+      <div class="main-content">
+        <div class="text-content">
+          <h1 class="title">Abstract</h1>
+          <p class="description">
+            Explore the world of abstract photography and artistic expression.
+          </p>
+          <a href="#" class="explore-btn">Explore Now</a>
+        </div>
+
+        <div class="slider-section">
+          <div class="slider-container">
+            <div class="slider">
+              <!-- Slides will be added by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="navigation-wrapper">
+        <button class="nav-btn prev-btn">←</button>
+        <div class="dots"></div>
+        <button class="nav-btn next-btn">→</button>
+      </div>
+    </div>
+
+    <script>
+      const slides = [
+        {
+          title: "DRAMA",
+          description:
+            "Get lost in powerful stories filled with emotion and depth",
+          image: "/public/images/cat/darama.jpg",
+          background:
+            "url('/public/images/cat/dramaback.jpg') center/cover no-repeat",
+          link: "./gallery.html#drama", // يتطابق مع film.category: "drama"
+        },
+        {
+          title: "COMEDY",
+          description:
+            "Enjoy hilarious comedies that will make you laugh out loud.",
+          image: "/public/images/cat/com.jpg",
+          background:
+            "url('/public/images/cat/comb.jpg') center/cover no-repeat",
+          link: "/gallery.html#comedy", // يتطابق مع film.category: "comedy"
+        },
+        {
+          title: "Documentary",
+          description:
+            "Discover real-life stories and explore the world with our documentaries.",
+          image: "/public/images/cat/doc.jpg",
+          background:
+            "url('/public/images/cat/domb.jpg') center/cover no-repeat",
+          link: "/gallery.html#documentary", // يتطابق مع film.category: "documentary"
+        },
+        {
+          title: "Romance",
+          description:
+            "Fall in love with beautiful and heartfelt love stories.",
+          image: "/public/images/cat/rom.jpg",
+          background:
+            "url('/public/images/cat/romb.jpg') center/cover no-repeat",
+          link: "/gallery.html#romance", // يتطابق مع film.category: "romance drama"
+        },
+        {
+          title: "Experimental",
+          description:
+            "Step into a world of innovation with films that challenge the ordinary and ignite your imagination.",
+          image: "/public/images/cat/ex.jpg",
+          background:
+            "url('/public/images/cat/exb.jpg') center/cover no-repeat",
+          link: "/gallery.html#experimental", // يتطابق مع film.category: "experimental"
+        },
+      ];
+      function updateContent() {
+        const activeSlide = slides[currentIndex];
+        document.body.style.transition = "background 0.5s ease-out";
+        document.body.style.background = activeSlide.background;
+
+        // تحديث العنوان والوصف
+        document.querySelector(".title").textContent = activeSlide.title;
+        document.querySelector(".description").textContent =
+          activeSlide.description;
+
+        // تحديث رابط الزر
+        const exploreBtn = document.querySelector(".explore-btn");
+        exploreBtn.href = activeSlide.link;
+
+        // تحديث لون الزر (إذا كان موجوداً)
+        exploreBtn.style.transition = "background-color 0.5s ease-out";
+        exploreBtn.style.backgroundColor =
+          activeSlide.buttonColor || "rgba(255,255,255,0.2)";
+      }
+
+      // ... (باقي الكود يبقى كما هو) ...
+      let isDragging = false;
+      let startPos = 0;
+      let currentTranslate = 0;
+      let prevTranslate = 0;
+      let animationID = 0;
+      let currentIndex = 0;
+
+      function initSlider() {
+        const slider = document.querySelector(".slider");
+        const dotsContainer = document.querySelector(".dots");
+
+        slides.forEach((slide, index) => {
+          const slideDiv = document.createElement("div");
+          slideDiv.className = `slide ${index === 0 ? "active" : ""}`;
+          slideDiv.innerHTML = `<img src="${slide.image}" alt="${slide.title}">`;
+          slider.appendChild(slideDiv);
+        });
+
+        slides.forEach((_, index) => {
+          const dot = document.createElement("div");
+          dot.className = `dot ${index === 0 ? "active" : ""}`;
+          dot.addEventListener("click", () => goToSlide(index));
+          dotsContainer.appendChild(dot);
+        });
+
+        updateContent();
+      }
+
+      function updateContent() {
+        const activeSlide = slides[currentIndex];
+        document.body.style.transition = "background 0.5s ease-out";
+        document.body.style.background = activeSlide.background;
+
+        document.querySelector(".title").textContent = activeSlide.title;
+        document.querySelector(".description").textContent =
+          activeSlide.description;
+
+        // Update explore button color based on slide
+        const btn = document.querySelector(".explore-btn");
+        btn.style.transition = "background-color 0.5s ease-out";
+        btn.style.backgroundColor =
+          activeSlide.buttonColor || "rgba(255,255,255,0.2)";
+        const exploreBtn = document.querySelector(".explore-btn");
+        exploreBtn.href = activeSlide.link;
+      }
+
+      function getPositionX(event) {
+        return event.type.includes("mouse")
+          ? event.clientX
+          : event.touches[0].clientX;
+      }
+
+      function touchStart(event) {
+        isDragging = true;
+        startPos = getPositionX(event);
+        animationID = requestAnimationFrame(animation);
+        document.querySelector(".slider").style.cursor = "grabbing";
+      }
+
+      function touchMove(event) {
+        if (isDragging) {
+          const currentPosition = getPositionX(event);
+          const moveBy = currentPosition - startPos;
+
+          const slideWidth = document.querySelector(".slide").offsetWidth;
+          const maxMove = slideWidth;
+
+          if (Math.abs(moveBy) <= maxMove) {
+            currentTranslate = prevTranslate + moveBy;
+          }
+        }
+      }
+
+      function touchEnd() {
+        isDragging = false;
+        cancelAnimationFrame(animationID);
+
+        const moveBy = currentTranslate - prevTranslate;
+        const slideWidth = document.querySelector(".slide").offsetWidth + 32;
+
+        if (Math.abs(moveBy) > slideWidth / 3) {
+          if (moveBy < 0 && currentIndex < slides.length - 1) {
+            currentIndex++;
+          } else if (moveBy > 0 && currentIndex > 0) {
+            currentIndex--;
+          }
+        }
+
+        updateSlider();
+        document.querySelector(".slider").style.cursor = "grab";
+      }
+
+      function animation() {
+        setSliderPosition();
+        if (isDragging) requestAnimationFrame(animation);
+      }
+
+      function setSliderPosition() {
+        document.querySelector(
+          ".slider"
+        ).style.transform = `translateX(${currentTranslate}px)`;
+      }
+
+      function updateSlider() {
+        const slider = document.querySelector(".slider");
+        const slideWidth = 280; // Base slide width
+        const gap = 32; // Gap between slides
+        const activeOffset = 35; // Additional offset for active slide
+
+        currentTranslate = -(
+          currentIndex * (slideWidth + gap) +
+          (currentIndex > 0 ? activeOffset : 0)
+        );
+        prevTranslate = currentTranslate;
+
+        slider.style.transition = "transform 0.5s ease-out";
+        slider.style.transform = `translateX(${currentTranslate}px)`;
+
+        document.querySelectorAll(".slide").forEach((slide, index) => {
+          const isActive = index === currentIndex;
+          const isVisible = index >= currentIndex && index < currentIndex + 3;
+
+          slide.classList.toggle("active", isActive);
+          slide.style.opacity = isVisible ? (isActive ? 1 : 0.6) : 0;
+          slide.style.visibility = isVisible ? "visible" : "hidden";
+          slide.style.transformOrigin = "center center";
+
+          if (isActive) {
+            slide.style.zIndex = "2";
+          } else {
+            slide.style.zIndex = "1";
+          }
+        });
+
+        document.querySelectorAll(".dot").forEach((dot, index) => {
+          dot.classList.toggle("active", index === currentIndex);
+        });
+
+        updateContent();
+      }
+
+      function goToSlide(index) {
+        if (index >= 0 && index < slides.length) {
+          currentIndex = index;
+          updateSlider();
+        }
+      }
+
+      function nextSlide() {
+        if (currentIndex < slides.length - 1) {
+          currentIndex++;
+          updateSlider();
+        }
+      }
+
+      function prevSlide() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateSlider();
+        }
+      }
+
+      function addEventListeners() {
+        const slider = document.querySelector(".slider");
+
+        slider.addEventListener("touchstart", touchStart);
+        slider.addEventListener("touchmove", touchMove);
+        slider.addEventListener("touchend", touchEnd);
+
+        slider.addEventListener("mousedown", touchStart);
+        slider.addEventListener("mousemove", touchMove);
+        slider.addEventListener("mouseup", touchEnd);
+        slider.addEventListener("mouseleave", touchEnd);
+
+        document
+          .querySelector(".prev-btn")
+          .addEventListener("click", prevSlide);
+        document
+          .querySelector(".next-btn")
+          .addEventListener("click", nextSlide);
+
+        slider.addEventListener("contextmenu", (e) => e.preventDefault());
+      }
+
+      // Initialize everything
+      function initialize() {
+        initSlider();
+        addEventListeners();
+      }
+
+      initialize();
+      window.onload = function () {
+        if (window.location.hash) {
+          // إزالة علامة # من بداية النص
+          const category = window.location.hash.substring(1);
+
+          // تحديث الفلتر النشط
+          document.querySelectorAll(".filter-button").forEach((btn) => {
+            btn.classList.remove("active");
+            if (btn.dataset.filter === category) {
+              btn.classList.add("active");
+            }
+          });
+
+          // عرض الأفلام المطلوبة
+          displayFilms(category);
+
+          // التمرير إلى القسم بسلاسة
+          setTimeout(() => {
+            window.scrollTo({
+              top: document.querySelector(".films-grid").offsetTop - 100,
+              behavior: "smooth",
+            });
+          }, 100);
+        }
+      };
+    </script>
+  </body>
+</html>

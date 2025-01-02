@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital Media Student Films Gallery</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        background-color: #000000;
+        color: #ffffff;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        direction: ltr;
+        text-align: left;
+      }
+
+      .nav {
+        background-color: rgba(0, 0, 0, 0.9);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .nav-brand {
+        font-size: 1.5rem;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 300;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .nav-link {
+        color: #fff;
+        text-decoration: none;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: color 0.3s ease;
+        position: relative;
+      }
+
+      .nav-link:after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: -4px;
+        left: 0;
+        background-color: #fff;
+        transition: width 0.3s ease;
+      }
+
+      .nav-link:hover:after {
+        width: 100%;
+      }
+
+      .hero-section {
+        height: 100vh;
+        width: 100%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(
+            to bottom,
+            rgba(0, 0, 0, 0.7),
+            rgba(0, 0, 0, 0.9)
+          ),
+          url("/api/placeholder/1920/1080");
+        background-size: cover;
+        background-position: center;
+        margin-bottom: 2rem;
+      }
+
+      .hero-content {
+        text-align: center;
+        max-width: 800px;
+        padding: 2rem;
+        animation: fadeInUp 1.2s ease;
+      }
+
+      .hero-title {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        font-weight: 300;
+        letter-spacing: 3px;
+      }
+
+      .hero-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        color: #aaa;
+      }
+
+      .hero-scroll {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: bounce 2s infinite;
+        cursor: pointer;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        opacity: 0;
+        animation: fadeIn 0.8s ease forwards;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 40px 20px;
+        border-bottom: 1px solid #333;
+        position: relative;
+        overflow: hidden;
+      }
+
+      header::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #fff, transparent);
+        animation: shimmer 2s infinite;
+      }
+
+      h1 {
+        color: #ffffff;
+        margin-bottom: 15px;
+        font-size: 2.5em;
+        font-weight: 300;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        animation: slideDown 0.8s ease;
+      }
+
+      .subtitle {
+        color: #888;
+        font-size: 1.1em;
+        font-weight: 300;
+        letter-spacing: 1px;
+        animation: slideUp 0.8s ease 0.2s forwards;
+        opacity: 0;
+      }
+
+      .films-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+        padding: 20px 0;
+      }
+
+      .film-card {
+        background: #111;
+        overflow: hidden;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        cursor: pointer;
+        height: 450px;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: cardAppear 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      .film-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      .film-thumbnail {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .film-thumbnail img {
+        width: 100%;
+        height: 100%;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        /* object-fit: cover; */
+      }
+
+      .film-card:hover .film-thumbnail img {
+        transform: scale(1.1);
+      }
+
+      .film-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.95) 0%,
+          rgba(0, 0, 0, 0.8) 50%,
+          rgba(0, 0, 0, 0) 100%
+        );
+        padding: 20px;
+        transform: translateY(100%);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        height: 100%;
+        backdrop-filter: blur(3px);
+      }
+
+      .film-card:hover .film-overlay {
+        transform: translateY(0);
+      }
+
+      .film-title {
+        font-size: 1.4em;
+        color: #fff;
+        margin-bottom: 12px;
+        font-family: "Arial", sans-serif;
+        font-weight: 300;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: left;
+        direction: ltr;
+      }
+
+      .film-team {
+        color: #888;
+        font-size: 1em;
+        margin-bottom: 8px;
+        font-family: "Arial", sans-serif;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: left;
+        direction: ltr;
+      }
+
+      .film-description {
+        color: #666;
+        font-size: 0.95em;
+        line-height: 1.6;
+        margin-top: 12px;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: left;
+        direction: ltr;
+      }
+
+      .film-card:hover .film-title,
+      .film-card:hover .film-team,
+      .film-card:hover .film-description {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .film-card:hover .film-title {
+        transition-delay: 0.1s;
+      }
+      .film-card:hover .film-team {
+        transition-delay: 0.2s;
+      }
+      .film-card:hover .film-description {
+        transition-delay: 0.3s;
+      }
+
+      .watch-film-btn {
+        display: inline-block;
+        padding: 12px 25px;
+        background: #fff;
+        color: #000;
+        text-decoration: none;
+        margin-top: 15px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9em;
+        opacity: 0;
+        transform: translateY(20px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .watch-film-btn::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+
+      .watch-film-btn:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+
+      .film-card:hover .watch-film-btn {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
+      }
+
+      .watch-film-btn:hover {
+        background: #000;
+        color: #fff;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .filter-container {
+        margin-bottom: 30px;
+        text-align: center;
+        padding: 20px;
+        border-bottom: 1px solid #333;
+        opacity: 0;
+        animation: fadeIn 0.8s ease 0.4s forwards;
+      }
+
+      .filter-button {
+        padding: 10px 20px;
+        margin: 5px;
+        border: 1px solid #333;
+        background-color: transparent;
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .filter-button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.6s;
+      }
+
+      .filter-button:hover::before {
+        left: 100%;
+      }
+
+      .filter-button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .filter-button.active {
+        background-color: #fff;
+        color: #000;
+        border-color: #fff;
+        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-20px);
+        }
+        60% {
+          transform: translateY(-10px);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes cardAppear {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        }
+
+        .nav-mobile-menu {
+          display: block;
+          font-size: 1.5rem;
+          color: #fff;
+          cursor: pointer;
+        }
+
+        .hero-title {
+          font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+          font-size: 1.2rem;
+        }
+
+        .films-grid {
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 20px;
+        }
+
+        .container {
+          padding: 15px;
+        }
+
+        header {
+          padding: 30px 15px;
+        }
+
+        h1 {
+          font-size: 2em;
+        }
+
+        .filter-button {
+          padding: 8px 16px;
+          margin: 3px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        header {
+          padding: 25px 15px;
+        }
+
+        h1 {
+          font-size: 1.8em;
+        }
+
+        .film-card {
+          margin: 0 0 20px 0;
+        }
+
+        .hero-title {
+          font-size: 2rem;
+        }
+
+        .hero-subtitle {
+          font-size: 1rem;
+        }
+      }
+      @media (max-width: 768px) {
+        .nav {
+          padding: 0.8rem 1rem;
+        }
+
+        .nav-brand {
+          font-size: 1.2rem;
+        }
+
+        .nav-links {
+          position: fixed;
+          top: 60px;
+          left: 0;
+          right: 0;
+          background: rgba(0, 0, 0, 0.95);
+          padding: 1rem;
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+          transform: translateY(-100%);
+          transition: transform 0.3s ease;
+          backdrop-filter: blur(10px);
+        }
+
+        .nav-links.active {
+          transform: translateY(0);
+        }
+
+        .nav-mobile-menu {
+          display: block;
+          font-size: 1.5rem;
+          color: #fff;
+          cursor: pointer;
+          padding: 0.5rem;
+        }
+
+        .hero-section {
+          height: 80vh;
+        }
+
+        .hero-title {
+          font-size: 2rem;
+          letter-spacing: 2px;
+        }
+
+        .hero-subtitle {
+          font-size: 1rem;
+          padding: 0 1rem;
+        }
+
+        .films-grid {
+          grid-template-columns: 1fr;
+          gap: 15px;
+          padding: 10px;
+        }
+
+        .film-card {
+          height: 380px;
+        }
+
+        .container {
+          padding: 10px;
+        }
+
+        header {
+          padding: 20px 10px;
+          margin-bottom: 20px;
+        }
+
+        h1 {
+          font-size: 1.8em;
+        }
+
+        .filter-container {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 8px;
+          padding: 15px 10px;
+        }
+
+        .filter-button {
+          padding: 8px 12px;
+          font-size: 0.8em;
+          flex: 0 0 calc(50% - 10px);
+          margin: 0;
+        }
+
+        .film-title {
+          font-size: 1.2em;
+        }
+
+        .film-team {
+          font-size: 0.9em;
+        }
+
+        .film-description {
+          font-size: 0.85em;
+        }
+
+        .watch-film-btn {
+          padding: 10px 20px;
+          font-size: 0.8em;
+        }
+      }
+      @media (max-width: 768px) {
+        .films-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+          padding: 10px;
+        }
+
+        .film-card {
+          height: 260px;
+        }
+
+        .film-title {
+          font-size: 0.9em;
+          margin-bottom: 8px;
+        }
+
+        .film-team {
+          font-size: 0.8em;
+          margin-bottom: 4px;
+        }
+
+        .film-description {
+          font-size: 0.75em;
+          margin-top: 4px;
+        }
+
+        .watch-film-btn {
+          padding: 8px 12px;
+          font-size: 0.75em;
+          margin-top: 8px;
+        }
+
+        .film-overlay {
+          padding: 12px;
+        }
+      }
+
+      /* Smaller mobile devices */
+      @media (max-width: 480px) {
+        .films-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 8px;
+          padding: 8px;
+        }
+
+        .film-card {
+          height: 220px;
+        }
+
+        .film-title {
+          font-size: 0.85em;
+        }
+
+        .film-team {
+          font-size: 0.75em;
+        }
+
+        .film-description {
+          font-size: 0.7em;
+        }
+
+        .watch-film-btn {
+          padding: 6px 10px;
+          font-size: 0.7em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav">
+      <a href="/public/index.html" class="nav-brand">Digital Media</a>
+      <div class="nav-links">
+        <!-- <a href="#" class="nav-link">FILMS</a>
+        <a href="#" class="nav-link">ABOUT -->
+        <a href="about.html" class="nav-link">ABOUT</a>
+        <a href="con.html" class="nav-link">CONTACT</a>
+      </div>
+    </nav>
+
+    <div class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">Digital Media Films</h1>
+        <p class="hero-subtitle">
+          Discover creative stories from our talented students
+        </p>
+      </div>
+      <div class="hero-scroll">
+        <svg
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          stroke-width="2"
+        >
+          <path d="M12 5v14M5 12l7 7 7-7" />
+        </svg>
+      </div>
+    </div>
+
+    <div class="container">
+      <header>
+        <h1>Student Films Gallery</h1>
+        <p class="subtitle">Digital Media Department</p>
+      </header>
+
+      <div class="filter-container" id="categories">
+        <button class="filter-button active" data-filter="all" id="all">
+          All Films
+        </button>
+        <button class="filter-button" data-filter="drama" id="drama">
+          Drama
+        </button>
+        <button class="filter-button" data-filter="comedy" id="comedy">
+          Comedy
+        </button>
+        <button
+          class="filter-button"
+          data-filter="documentary"
+          id="documentary"
+        >
+          Documentary
+        </button>
+        <button class="filter-button" data-filter="romance" id="romance">
+          Romance
+        </button>
+        <button
+          class="filter-button"
+          data-filter="experimental"
+          id="experimental"
+        >
+          Experimental
+        </button>
+      </div>
+
+      <div class="films-grid" id="filmsGrid">
+        <!-- Films will be added dynamically -->
+      </div>
+    </div>
+
+    <script>
+      // Films data array
+      const films = [
+        {
+          id: 1,
+          title: "ناقص حاجه",
+          team: " team 10",
+          description: "Experimental Film",
+          category: "experimental",
+          thumbnail: "/public/images/bromo/1.jpeg",
+        },
+        {
+          id: 2,
+          title: "ليلة افتراضيه",
+          team: "Team 15 ",
+          description: "Drama",
+          category: "drama",
+          thumbnail: "/public/images/bromo/13.jpeg",
+        },
+        {
+          id: 3,
+          title: "رقم ١٣",
+          team: "Team 7 ",
+          description: "True Story Drama",
+          category: "drama",
+          thumbnail: "/public/images/bromo/16.jpeg",
+        },
+        {
+          id: 17,
+          title: "فيلم الأرض",
+          team: "Team 17 ",
+          description: "Documentary",
+          category: "documentary",
+          thumbnail: "/public/images/bromo/15.jpeg",
+        },
+        {
+          id: 5,
+          title: "حتي نلتقي",
+          team: "Team 11 ",
+          description: "Drama",
+          category: "drama",
+          thumbnail: "/public/images/bromo/11.jpeg",
+        },
+        {
+          id: 6,
+          title: "ليلة القبض علي مسكين وسعفان",
+          team: "Team 13 ",
+          description: "Comedy",
+          category: "comedy",
+          thumbnail: "/public/images/bromo/12.jpeg",
+        },
+        {
+          id: 7,
+          title: "نور",
+          team: "Team 1 ",
+          description: "Family Drama",
+          category: "family drama",
+          thumbnail: "/public/images/bromo/3.jpeg",
+        },
+        {
+          id: 8,
+          title: "فراغ",
+          team: "Team 2 ",
+          description: "Drama",
+          category: "drama",
+          thumbnail: "/public/images/bromo/7.jpeg",
+        },
+        {
+          id: 9,
+          title: "محاكمة صالح",
+          team: "Team 5 ",
+          description: "Drama",
+          category: "drama",
+          thumbnail: "/public/images/bromo/2.jpeg",
+        },
+        {
+          id: 10,
+          title: "الحلم",
+          team: "Team 14 ",
+          description: "Realistic Drama",
+          category: "drama",
+          thumbnail: "/public/images/bromo/1000.png",
+        },
+        {
+          id: 11,
+          title: "ركام",
+          team: "Team 9 ",
+          description: "Drama",
+          category: "drama",
+          thumbnail: "/public/images/bromo/14.jpeg",
+        },
+        {
+          id: 12,
+          title: "ونس",
+          team: "Team 4 ",
+          description: "Drama - Azazeel",
+          category: "drama",
+          thumbnail: "/public/images/bromo/10.jpeg",
+        },
+        {
+          id: 13,
+          title: "ما وراء الفرح",
+          team: "Team 3 ",
+          description: "Family Comedy Drama",
+          category: "comedy",
+          thumbnail: "/public/images/bromo/8.jpeg",
+        },
+        {
+          id: 14,
+          title: "حلوه الايام",
+          team: "Team 12 ",
+          description: "Romantic Drama",
+          category: "romance drama",
+          thumbnail: "/public/images/bromo/100.jpeg",
+        },
+        {
+          id: 15,
+          title: "مجرد رقم",
+          team: "Team 6 ",
+          description: "Realistic Drama",
+          category: "drama",
+          thumbnail: "/public/images/bromo/5.jpeg",
+        },
+        {
+          id: 16,
+          title: "واحد ساده واتنين زياده",
+          team: "Team 16 ",
+          description: "Comedy",
+          category: "comedy",
+          thumbnail: "/public/images/bromo/9.jpeg",
+        },
+        {
+          id: 4,
+
+          title: "وعي",
+          team: "Team 8 ",
+          description: "Family Drama",
+          category: "family drama",
+          thumbnail: "/public/images/bromo/6.jpeg",
+        },
+      ];
+
+      // Create film card function
+      function createFilmCard(film) {
+        const delay = Math.random() * 0.5;
+        return `
+    <div class="film-card" data-category="${
+      film.category
+    }" style="animation-delay: ${delay}s">
+      <div class="film-thumbnail">
+        <img src="${film.thumbnail}" alt="${film.title}" loading="lazy">
+        <div class="film-overlay">
+          <h3 class="film-title">${film.title}</h3>
+          <p class="film-team">${film.team}</p>
+          <p class="film-description">${film.description}</p>
+          <div class="category-tag">${film.category
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase())}</div>
+          <a href="movie.html?id=${film.id}" class="watch-film-btn">
+            Watch Film & Credits
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+      }
+
+      // Display films function with improved animation
+      function displayFilms(category = "all") {
+        const filmsGrid = document.getElementById("filmsGrid");
+        filmsGrid.innerHTML = "";
+
+        let filteredFilms = films;
+        if (category !== "all") {
+          filteredFilms = films.filter((film) => {
+            const mainCategory = film.category.toLowerCase().split(" ")[0];
+            return mainCategory === category.toLowerCase();
+          });
+        }
+
+        // Add films with staggered animation
+        filteredFilms.forEach((film, index) => {
+          setTimeout(() => {
+            const filmCard = document.createElement("div");
+            filmCard.innerHTML = createFilmCard(film);
+            filmsGrid.appendChild(filmCard.firstElementChild);
+          }, index * 100);
+        });
+      }
+
+      // Mobile menu functionality
+      function initializeMobileMenu() {
+        const mobileMenuButton = document.querySelector(".nav-mobile-menu");
+        const navLinks = document.querySelector(".nav-links");
+
+        mobileMenuButton?.addEventListener("click", () => {
+          navLinks.classList.toggle("active");
+          mobileMenuButton.textContent = navLinks.classList.contains("active")
+            ? "✕"
+            : "☰";
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener("click", (e) => {
+          if (
+            !e.target.closest(".nav") &&
+            navLinks.classList.contains("active")
+          ) {
+            navLinks.classList.remove("active");
+            mobileMenuButton.textContent = "☰";
+          }
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll(".nav-link").forEach((link) => {
+          link.addEventListener("click", () => {
+            if (window.innerWidth <= 768) {
+              navLinks.classList.remove("active");
+              mobileMenuButton.textContent = "☰";
+            }
+          });
+        });
+      }
+
+      // Initialize touch support for better mobile experience
+      function initializeTouchSupport() {
+        document.querySelectorAll(".film-card").forEach((card) => {
+          let touchStartY = 0;
+          let touchStartX = 0;
+          let isSwiping = false;
+
+          card.addEventListener("touchstart", (e) => {
+            touchStartY = e.touches[0].clientY;
+            touchStartX = e.touches[0].clientX;
+            isSwiping = false;
+          });
+
+          card.addEventListener(
+            "touchmove",
+            (e) => {
+              if (isSwiping) return;
+
+              const touchEndY = e.touches[0].clientY;
+              const touchEndX = e.touches[0].clientX;
+              const deltaY = touchEndY - touchStartY;
+              const deltaX = touchEndX - touchStartX;
+
+              if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                isSwiping = true;
+                return;
+              }
+
+              if (Math.abs(deltaY) < 10) {
+                e.preventDefault();
+              }
+            },
+            { passive: false }
+          );
+        });
+      }
+
+      // Initialize all event listeners
+      function initializeEventListeners() {
+        // Filter buttons - Modified to prevent scrolling
+        document.querySelectorAll(".filter-button").forEach((button) => {
+          button.addEventListener("click", (e) => {
+            e.preventDefault();
+            const filter = e.target.dataset.filter;
+
+            // Update active state of buttons
+            document.querySelectorAll(".filter-button").forEach((btn) => {
+              btn.classList.remove("active");
+            });
+            e.target.classList.add("active");
+
+            // Update URL hash without scrolling
+            const currentScroll = window.scrollY;
+            history.pushState(null, null, `#${filter}`);
+            window.scrollTo(0, currentScroll);
+
+            // Display filtered content
+            displayFilms(filter);
+          });
+        });
+
+        // Hero scroll button
+        document
+          .querySelector(".hero-scroll")
+          ?.addEventListener("click", () => {
+            const filterContainer = document.querySelector(".filter-container");
+            filterContainer.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+              inline: "nearest",
+            });
+          });
+
+        // Initialize mobile features
+        initializeMobileMenu();
+        initializeTouchSupport();
+
+        // Handle hash changes without scrolling
+        window.addEventListener("hashchange", (e) => {
+          e.preventDefault();
+          const currentScroll = window.scrollY;
+          handleHashChange();
+          window.scrollTo(0, currentScroll);
+        });
+      }
+
+      // Handle hash changes without affecting scroll
+      function handleHashChange() {
+        const hash = window.location.hash.slice(1) || "all";
+        document.querySelectorAll(".filter-button").forEach((btn) => {
+          btn.classList.remove("active");
+          if (btn.dataset.filter === hash) {
+            btn.classList.add("active");
+          }
+        });
+        displayFilms(hash);
+      }
+
+      // Initialize the page
+      function initializePage() {
+        initializeEventListeners();
+
+        // Check for stored category or hash
+        const selectedCategory = localStorage.getItem("selectedCategory");
+        if (selectedCategory) {
+          displayFilms(selectedCategory);
+          document.querySelectorAll(".filter-button").forEach((btn) => {
+            btn.classList.remove("active");
+            if (btn.dataset.filter === selectedCategory) {
+              btn.classList.add("active");
+            }
+          });
+          localStorage.removeItem("selectedCategory");
+        } else if (window.location.hash) {
+          handleHashChange();
+        } else {
+          displayFilms("all");
+        }
+      }
+
+      // Start the application
+      document.addEventListener("DOMContentLoaded", initializePage);
+    </script>
+  </body>
+</html>
